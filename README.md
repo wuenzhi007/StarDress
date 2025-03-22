@@ -75,3 +75,59 @@ Read our [Upgrade Guide](https://ignitecookbook.com/docs/recipes/UpdatingIgnite)
 💬 Join us on [Slack](https://join.slack.com/t/infiniteredcommunity/shared_invite/zt-1f137np4h-zPTq_CbaRFUOR_glUFs2UA) to discuss.
 
 📰 Make our Editor-in-chief happy by [reading the React Native Newsletter](https://reactnativenewsletter.com/).
+
+
+
+## backup info
+    █ Creating StarDress using Ignite 10.1.9
+    █ Powered by  ∞ Infinite Red  (https://infinite.red)
+    █ Package Manager: yarn
+    █ Bundle identifier: com.star.stardress
+    █ Path: /home/david/Work/StarDress/StarDress
+    ────────────────────────────────────────────────────
+   
+    🖨  3D-printing a new React Native app
+    🎨 Getting those last few details perfect
+    🧶 Installing yarn dependencies (wow these are heavy)
+    ⚙️ Configuring app.json
+    🛠️ Generating native template via Expo Prebuild
+    🛠️ Removing fancy demo markup
+    🌳 Removing MobX-State-Tree markup
+    🧽 Cleaning up
+    🗄  Backing everything up in source control
+   
+    ────────────────────────────────────────────────────
+   
+    Ignited StarDress in 463.37s  🚀 
+    
+    For next time, here are the Ignite options you picked:
+      npx ignite-cli new StarDress \
+        --bundle=com.star.stardress \
+        --git \
+        --install-deps \
+        --packager=yarn \
+        --target-path=/home/david/Work/StarDress/StarDress \
+        --remove-demo=false \
+        --new-arch=false \
+        --workflow=cng \
+        --no-timeout=false \
+        --state=mst 
+    
+    ────────────────────────────────────────────────────
+    
+    To run in Android, make sure you've followed the latest
+    react-native setup instructions. You reference them at:
+    https://reactnative.dev/docs/environment-setup
+    
+    ────────────────────────────────────────────────────
+    
+    Need additional help?
+    
+    Join our Slack community at http://community.infinite.red.
+    
+    ────────────────────────────────────────────────────
+    
+    Now get cooking! 🍽
+      cd /home/david/Work/StarDress/StarDress
+      yarn android
+    
