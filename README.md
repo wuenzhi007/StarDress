@@ -1,6 +1,11 @@
+
+yarn add react-native-google-mobile-ads
+
+
+
 # Welcome to your new ignited app!
 
-> The latest and greatest boilerplate for Infinite Red opinions
+> The latest and greatest boilgerplate for Infinite Red opinions
 
 This is the boilerplate that [Infinite Red](https://infinite.red) uses as a way to test bleeding-edge changes to our React Native stack.
 
