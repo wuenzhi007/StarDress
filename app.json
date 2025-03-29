@@ -46,17 +46,15 @@
           "resizeMode": "contain",
           "backgroundColor": "#191015"
         }
-      ],
-      [
-        "react-native-google-mobile-ads",
-        {
-          "androidAppId": "ca-app-pub-xxxxxxxx~xxxxxxxx",
-          "iosAppId": "ca-app-pub-xxxxxxxx~xxxxxxxx"
-        }
       ]
     ],
     "experiments": {
       "tsconfigPaths": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d7a17890-771d-4165-9667-a3e4387118fd"
+      }
     }
   },
   "ignite": {
