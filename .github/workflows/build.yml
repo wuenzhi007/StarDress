@@ -27,18 +27,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 初始化 Ignite 项目（如果是空仓库）
-      - name: Initialize Ignite Project (if needed)
-        run: |
-          if [ ! -d "android" ]; then
-            echo "Android directory not found, initializing Ignite project"
-            npm install -g ignite-cli
-            ignite new StarDress --yes
-            mv StarDress/* .
-            mv StarDress/.* . 2>/dev/null || true
-            rmdir StarDress
-          fi
+      # # 初始化 Ignite 项目（如果是空仓库）
+      # - name: Initialize Ignite Project (if needed)
+      #   run: |
+      #     if [ ! -d "android" ]; then
+      #       echo "Android directory not found, initializing Ignite project"
+      #       npm install -g ignite-cli
+      #       ignite new StarDress --yes
+      #       mv StarDress/* .
+      #       mv StarDress/.* . 2>/dev/null || true
+      #       rmdir StarDress
+      #     fi
+      
 
+
+      
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
