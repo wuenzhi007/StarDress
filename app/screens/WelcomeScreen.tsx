@@ -9,7 +9,7 @@ import { $styles, type ThemedStyle } from "@/theme"
 import { useHeader } from "../utils/useHeader"
 import { useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
 import { useAppTheme } from "@/utils/useAppTheme"
-import { MobileAds } from 'react-native-google-mobile-ads'
+// import { MobileAds } from 'react-native-google-mobile-ads'
 
 const welcomeLogo = require("../../assets/images/logo.png")
 const welcomeFace = require("../../assets/images/welcome-face.png")
@@ -36,12 +36,12 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
     [logout],
   )
 
-  // 初始化 AdMob
-  MobileAds()
-    .initialize()
-    .then(() => {
-      console.log('AdMob 初始化成功');
-    });
+  // // 初始化 AdMob
+  // MobileAds()
+  //   .initialize()
+  //   .then(() => {
+  //     console.log('AdMob 初始化成功');
+  //   });
 
   const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
 
