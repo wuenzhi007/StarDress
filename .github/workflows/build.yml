@@ -59,14 +59,31 @@ jobs:
           --platform=${{ github.event.inputs.platform }} \
           --profile=${{ github.event.inputs.profile }}
 
+    # - name: 📤 Upload Build Artifact
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: app-${{ github.event.inputs.platform }}
+    #     path: |
+    #       ./app-build/**/*.apk
+    #       ./app-build/**/*.aab
+    #       ./app-build/**/*.ipa
+
+    # - name: 📤 Upload Build Artifact
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: app-${{ github.event.inputs.platform }}
+    #     path: |
+    #       app-build/**/*
+    #     if-no-files-found: error
+    
     - name: 📤 Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
         name: app-${{ github.event.inputs.platform }}
         path: |
-          ./app-build/**/*.apk
-          ./app-build/**/*.aab
-          ./app-build/**/*.ipa
+          app-build/$(ls app-build | grep -E '\.(apk|aab|ipa)$')
+        if-no-files-found: error
+
 
     - name: 🚢 Submit
       if: ${{ github.event.inputs.should_submit }}
