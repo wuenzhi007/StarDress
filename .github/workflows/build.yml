@@ -23,13 +23,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # 安装 Node.js 和 npm 依赖
-      - name: Set up Node.js
+      - name: Set up Node.js 20
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-      - run: npm install -g npm@latest
-      - run: npm install
+          node-version: 20.x
+          cache: 'npm'  # 启用缓存加速
+
+      - name: Update npm
+        run: npm install -g npm@latest
       
       # 缓存 Gradle 依赖（优化构建速度）
       - name: Cache Gradle
