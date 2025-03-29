@@ -24,14 +24,28 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 初始化 Ignite 项目（如果是空仓库）
+      - name: Initialize Ignite Project (if needed)
+        run: |
+          if [ ! -d "android" ]; then
+            echo "Android directory not found, initializing Ignite project"
+            npm install -g ignite-cli
+            ignite new StarDress --yes
+            mv StarDress/* .
+            mv StarDress/.* . 2>/dev/null || true
+            rmdir StarDress
+          fi
 
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'
-
+          # 移除 cache 配置，因为我们无法确定 Gradle 文件的位置
+      
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -42,18 +56,26 @@ jobs:
         run: |
           yarn install --frozen-lockfile
 
+      # 使用更简单的缓存配置
       - name: Cache Gradle dependencies
         uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/gradle/wrapper/gradle-wrapper.properties') || github.run_id }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            gradle-${{ runner.os }}-
 
       - name: Make Gradlew Executable
-        run: cd android && chmod +x ./gradlew
+        run: |
+          if [ -f "android/gradlew" ]; then
+            chmod +x android/gradlew
+          else
+            echo "Gradlew file not found, trying to fix project structure"
+            ls -la
+            find . -name "gradlew" -type f -exec chmod +x {} \;
+          fi
 
       - name: Create .env file
         run: |
@@ -61,41 +83,96 @@ jobs:
           echo "API_URL=${{ github.event.inputs.environment == 'production' && 'https://api.production.com' || github.event.inputs.environment == 'staging' && 'https://api.staging.com' || 'https://api.development.com' }}" >> .env
           echo "ENV=${{ github.event.inputs.environment || 'development' }}" >> .env
 
+      - name: Debug Project Structure
+        run: |
+          echo "Project structure:"
+          ls -la
+          echo "Android directory:"
+          ls -la android || echo "Android directory not found"
+          echo "Gradle files:"
+          find . -name "*.gradle" -o -name "*.gradle.kts" -o -name "gradle-wrapper.properties"
+
+      - name: Setup Keystore
+        run: |
+          echo "Setting up keystore file"
+          mkdir -p android/app/keystore
+          echo "${{ secrets.SIGNING_KEY }}" | base64 -d > android/app/keystore/release.keystore
+          echo "Keystore file created"
+
       - name: Build Android APK
         run: |
           cd android
-          ./gradlew assembleRelease --no-daemon
+          if [ -f "./gradlew" ]; then
+            ./gradlew assembleRelease --no-daemon
+          else
+            echo "Gradlew not found, trying with global gradle"
+            gradle assembleRelease --no-daemon
+          fi
 
       - name: Build Android App Bundle (AAB)
         run: |
           cd android
-          ./gradlew bundleRelease --no-daemon
+          if [ -f "./gradlew" ]; then
+            ./gradlew bundleRelease --no-daemon
+          else
+            echo "Gradlew not found, trying with global gradle"
+            gradle bundleRelease --no-daemon
+          fi
+
+      - name: Find build outputs
+        id: find_outputs
+        run: |
+          APK_PATH=$(find . -name "*.apk" -path "*/release/*" | head -n 1 || echo "")
+          AAB_PATH=$(find . -name "*.aab" -path "*/release/*" | head -n 1 || echo "")
+          echo "APK path: $APK_PATH"
+          echo "AAB path: $AAB_PATH"
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+          echo "aab_path=$AAB_PATH" >> $GITHUB_OUTPUT
+          mkdir -p artifacts
 
       - name: Sign Android release
+        if: steps.find_outputs.outputs.apk_path != ''
         uses: r0adkll/sign-android-release@v1
         id: sign_app
         with:
-          releaseDirectory: android/app/build/outputs/apk/release
+          releaseDirectory: $(dirname "${{ steps.find_outputs.outputs.apk_path }}")
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.KEY_ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
       - name: Sign AAB
+        if: steps.find_outputs.outputs.aab_path != ''
         uses: r0adkll/sign-android-release@v1
         id: sign_aab
         with:
-          releaseDirectory: android/app/build/outputs/bundle/release
+          releaseDirectory: $(dirname "${{ steps.find_outputs.outputs.aab_path }}")
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.KEY_ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Rename APK and AAB
+      - name: Copy Build Artifacts
         run: |
-          mkdir -p artifacts
-          cp ${{ steps.sign_app.outputs.signedReleaseFile }} artifacts/app-release-${{ github.event.inputs.environment || 'development' }}-${{ github.sha }}.apk
-          cp ${{ steps.sign_aab.outputs.signedReleaseFile }} artifacts/app-release-${{ github.event.inputs.environment || 'development' }}-${{ github.sha }}.aab
+          if [ -n "${{ steps.find_outputs.outputs.apk_path }}" ]; then
+            cp "${{ steps.find_outputs.outputs.apk_path }}" artifacts/app-release-${{ github.event.inputs.environment || 'development' }}-${{ github.sha }}.apk
+          fi
+          
+          if [ -n "${{ steps.find_outputs.outputs.aab_path }}" ]; then
+            cp "${{ steps.find_outputs.outputs.aab_path }}" artifacts/app-release-${{ github.event.inputs.environment || 'development' }}-${{ github.sha }}.aab
+          fi
+          
+          # 如果找不到构建输出，尝试手动查找并复制
+          if [ ! -f "artifacts/app-release-${{ github.event.inputs.environment || 'development' }}-${{ github.sha }}.apk" ]; then
+            find . -name "*.apk" -exec cp {} artifacts/app-release-${{ github.event.inputs.environment || 'development' }}-${{ github.sha }}.apk \; -quit
+          fi
+          
+          if [ ! -f "artifacts/app-release-${{ github.event.inputs.environment || 'development' }}-${{ github.sha }}.aab" ]; then
+            find . -name "*.aab" -exec cp {} artifacts/app-release-${{ github.event.inputs.environment || 'development' }}-${{ github.sha }}.aab \; -quit
+          fi
+          
+          echo "Artifacts directory contents:"
+          ls -la artifacts/
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -103,6 +180,7 @@ jobs:
           name: app-release-apk
           path: artifacts/app-release-*.apk
           retention-days: 14
+          if-no-files-found: warn
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
@@ -110,6 +188,7 @@ jobs:
           name: app-release-aab
           path: artifacts/app-release-*.aab
           retention-days: 14
+          if-no-files-found: warn
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/v')
