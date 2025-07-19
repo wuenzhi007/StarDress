@@ -37,11 +37,6 @@ jobs:
         
       - name: Install dependencies
         run: npm ci
-
-      - name: Login to Expo
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}  # 使用 GitHub Secrets
-        run: eas login --token $EXPO_TOKEN
         
       - name: Build Android app
         run: eas build --platform android --profile development --local --output ${{ github.workspace }}/app-release.apk
