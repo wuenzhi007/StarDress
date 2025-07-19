@@ -19,7 +19,7 @@
     ],
     "android": {
       "icon": "./assets/images/app-icon-android-legacy.png",
-      "package": "com.star.stardress",
+      "package": "com.ignite.stardress",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/app-icon-android-adaptive-foreground.png",
         "backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
@@ -29,7 +29,7 @@
     "ios": {
       "icon": "./assets/images/app-icon-ios.png",
       "supportsTablet": true,
-      "bundleIdentifier": "com.star.stardress"
+      "bundleIdentifier": "com.ignite.stardress"
     },
     "web": {
       "favicon": "./assets/images/app-icon-web-favicon.png",
