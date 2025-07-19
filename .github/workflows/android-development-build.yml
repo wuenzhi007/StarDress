@@ -32,6 +32,9 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
+      - name: Install dependencies0
+        run: npm install  # 生成 package-lock.json
+        
       - name: Install dependencies
         run: npm ci
 
