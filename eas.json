@@ -6,6 +6,16 @@
     "development": {
       "extends": "production",
       "distribution": "internal",
+      "credentials": {
+        "android": {
+          "keystore": {
+            "type": "auto"
+          }
+        },
+        "ios": {
+          "type": "auto" 
+        },
+      },
       "android": {
         "gradleCommand": ":app:assembleDebug"
       },
